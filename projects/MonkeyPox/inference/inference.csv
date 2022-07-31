@@ -1,0 +1,20 @@
+filename, label, prediction1, score1, prediction2, score2
+Monkey_Pox___M01_02_101.jpg,Monkey_Pox,Monkey_Pox,0.9732,Others,0.0268
+Monkey_Pox___M13_01_102.jpg,Monkey_Pox,Monkey_Pox,0.9972,Others,0.0028
+Monkey_Pox___M20_01_103.jpg,Monkey_Pox,Monkey_Pox,0.6908,Others,0.3092
+Monkey_Pox___M21_02_104.jpg,Monkey_Pox,Others,0.716,Monkey_Pox,0.284
+Monkey_Pox___M25_02_105.jpg,Monkey_Pox,Monkey_Pox,0.9705,Others,0.0295
+Monkey_Pox___M34_01_106.jpg,Monkey_Pox,Monkey_Pox,0.6574,Others,0.3426
+Monkey_Pox___M35_02_107.jpg,Monkey_Pox,Others,0.886,Monkey_Pox,0.114
+Monkey_Pox___M43_02_108.jpg,Monkey_Pox,Monkey_Pox,0.9991,Others,0.0009
+Monkey_Pox___M48_01_109.jpg,Monkey_Pox,Monkey_Pox,0.9995,Others,0.0005
+Monkey_Pox___M51_02_110.jpg,Monkey_Pox,Monkey_Pox,0.9972,Others,0.0028
+Others___NM02_01_101.jpg,Others,Others,0.8204,Monkey_Pox,0.1796
+Others___NM08_01_102.jpg,Others,Others,0.9497,Monkey_Pox,0.0503
+Others___NM23_01_103.jpg,Others,Monkey_Pox,0.9593,Others,0.0407
+Others___NM40_01_104.jpg,Others,Others,0.8228,Monkey_Pox,0.1772
+Others___NM62_01_105.jpg,Others,Monkey_Pox,0.6078,Others,0.3922
+Others___NM69_01_106.jpg,Others,Monkey_Pox,0.7513,Others,0.2487
+Others___NM78_01_107.jpg,Others,Others,0.6833,Monkey_Pox,0.3167
+Others___NM99_01_108.jpg,Others,Others,0.9458,Monkey_Pox,0.0542
+Others___NM99_02_109.jpg,Others,Others,0.9133,Monkey_Pox,0.0867

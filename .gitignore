@@ -120,6 +120,10 @@ venv.bak/
 # mkdocs documentation
 /site
 
+#
+efficientnetv2-m/
+projects/MonkeyPox/models
+
 # mypy
 .mypy_cache/
 .dmypy.json

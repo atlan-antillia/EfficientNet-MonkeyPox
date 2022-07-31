@@ -1,0 +1,7 @@
+
+This dataset of Testing and Training has been from taken Original Images 
+of the following web site:
+https://www.kaggle.com/datasets/nafin59/monkeypox-skin-lesion-dataset
+
+See also the following drive:
+https://drive.google.com/drive/folders/1bIYqAW-vqDBq3Ou_UMXPwgemqfZeqQi5
