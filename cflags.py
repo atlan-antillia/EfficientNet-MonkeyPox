@@ -58,5 +58,7 @@ def define_flags():
   flags.DEFINE_bool('debug', True, 'Debug flag.')
   flags.DEFINE_float('trainable_layers_ratio',  0.3, 'Trainable layers ratio')
   flags.DEFINE_string('monitor', 'val_loss', 'Early stopping monitor.')
+  flags.DEFINE_string('optimizer', 'adam', 'Optimizer.')
+
   flags.DEFINE_integer('patience', 0, 'Early stopping patience.')
   

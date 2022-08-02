@@ -2,7 +2,7 @@
 EfficientNetV2 MonkeyPox Classification
 
 <h2>
-1 EfficientNetV2 MonkeyPox Classification (Updated: 2022/08/01)
+1 EfficientNetV2 MonkeyPox Classification (Updated: 2022/08/02)
 </h2>
 
 This is a simple MonkeyPox Classification project based on <b>efficientnetv2</b> in <a href="https://github.com/google/automl">Brain AutoML</a>
@@ -26,6 +26,9 @@ year={2022}
 </pre>
 
  We use python 3.8 and tensorflow 2.8.0 environment on Windows 11 for this project.<br>
+<li>
+We have udated <a href="./projects/MonkeyPox/data_generator.config">a data_generator.config</a> file to improve validation accuracy.
+</li>
    
 <h3>
 1.1 Clone repository
@@ -120,6 +123,7 @@ python ../../EfficientNetV2ModelTrainer.py ^
   --model_name=efficientnetv2-m  ^
   --data_generator_config=./data_generator.config ^
   --ckpt_dir=../../efficientnetv2-m/model ^
+  --optimizer=rmsprop ^
   --num_classes=2 ^
   --image_size=384 ^
   --eval_image_size=480 ^
@@ -130,10 +134,51 @@ python ../../EfficientNetV2ModelTrainer.py ^
   --monitor=val_loss ^
   --learning_rate=0.001 ^
   --trainable_layers_ratio=0.3 ^
-  --num_epochs=50 ^
+  --num_epochs=100 ^
   --batch_size=4 ^
   --patience=10 ^
   --debug=True  
+</pre>
+,where data_generator.config is the following<br>
+<pre>
+; data_generation.config
+
+[training]
+validation_split   = 0.2
+featurewise_center = False
+samplewise_center  = True
+featurewise_std_normalization=False
+samplewise_std_normalization =True
+zca_whitening                =False
+
+rotation_range     = 30
+horizontal_flip    = True
+       
+width_shift_range  = 0.4
+height_shift_range = 0.4
+shear_range        = 0.1
+zoom_range         = [0.8, 1.2]
+;zoom_range          = 0.2
+data_format        = "channels_last"
+
+[validation]
+validation_split   = 0.2
+featurewise_center = False
+samplewise_center  = True
+featurewise_std_normalization=False
+samplewise_std_normalization =True
+zca_whitening                =False
+
+rotation_range     = 30
+horizontal_flip    = True
+       
+width_shift_range  = 0.4
+height_shift_range = 0.4
+shear_range        = 0.1
+zoom_range         = [0.8, 1.2]
+;zoom_range         = 0.2
+data_format        = "channels_last"
+
 </pre>
 
 This will generate a <b>best_model.h5</b> in the models folder specified by --model_dir parameter.<br>
@@ -141,14 +186,14 @@ Furthermore, it will generate a <a href="./projects/MonkeyPox/eval/train_accurac
 and <a href="./projects/MonkeyPox/eval/train_losses.csv">train_losses</a> files
 <br>
 Training console output:<br>
-<img src="./asset/MonkeyPox_train_console_output_at_epoch_17_0731.png" width="740" height="auto"><br>
+<img src="./asset/MonkeyPox_train_console_output_at_epoch_36_0802_2.png" width="740" height="auto"><br>
 <br>
 Train_accuracies:<br>
-<img src="./asset/MonkeyPox_train_accuracies_at_epoch_17_0731.png" width="740" height="auto"><br>
+<img src="./asset/MonkeyPox_train_accuracies_at_epoch_36_0802_2.png" width="740" height="auto"><br>
 
 <br>
 Train_losses:<br>
-<img src="./asset/MonkeyPox_train_losses_at_epoch_17_0731.png" width="740" height="auto"><br>
+<img src="./asset/MonkeyPox_train_losses_at_epoch_36_0802_2.png" width="740" height="auto"><br>
 
 <br>
 
@@ -168,7 +213,7 @@ python ../../EfficientNetV2Inferencer.py ^
   --trainable_layers_ratio=0.3 ^
   --image_path=./test/*.jpg ^
   --eval_image_size=480 ^
-  --num_classes=4 ^
+  --num_classes=2 ^
   --label_map=./label_map.txt ^
   --mixed_precision=True ^
   --infer_dir=./inference ^
@@ -200,6 +245,8 @@ Others<br>
 This inference command will generate <a href="./projects/MonkeyPox/inference/inference.csv">inference result file</a>.
 <br>
 Inference console output:<br>
-<img src="./asset/MonkeyPox_infer_console_output_at_epoch_17_0731.png" width="740" height="auto"><br>
+<img src="./asset/MonkeyPox_infer_console_output_at_epoch_36_0802_2.png" width="740" height="auto"><br>
 <br>
+Inference result:<br>
+<img src="./asset/MonkeyPox_inference_result_at_epoch_36_0802_2.png" width="740" height="auto"><br>
 

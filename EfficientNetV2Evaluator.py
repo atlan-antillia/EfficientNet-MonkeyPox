@@ -13,9 +13,9 @@
 # limitations under the License.
 # ==============================================================================
 
-# 2022/07/20 Copyright (C) antillia.com
+# 2022/07/29 Copyright (C) antillia.com
 
-# EfficientNetV2Inferencer.py
+# EfficientNetV2Evaluator.py
 
 from operator import ge
 import os
@@ -36,7 +36,7 @@ import tensorflow as tf
 import preprocessing
 
 sys.path.append("../../")
-
+from TestDataset import TestDataset
 from FineTuningModel import FineTuningModel
 import tensorflow as tf
 
@@ -62,6 +62,7 @@ def define_flags():
 
   # 2022/07/20
   flags.DEFINE_integer('eval_image_size', None, 'Image size.')
+  flags.DEFINE_string('data_dir', './Testing', 'Testing data directory.')
   
   flags.DEFINE_string('strategy', 'gpu', 'Strategy: tpu, gpus, gpu.')
   flags.DEFINE_integer('num_classes', 10, 'Number of classes.')
@@ -69,19 +70,16 @@ def define_flags():
   flags.DEFINE_bool('mixed_precision', True, 'If True, use mixed precision.')
   flags.DEFINE_bool('fine_tuning', True,  'Fine tuning flag')
   flags.DEFINE_float('trainable_layers_ratio',  0.3, 'Trainable layers ratio')
-  flags.DEFINE_string('infer_dir',  "./inference", 'Directoroy to save inference results.')
+  flags.DEFINE_string('test_dir',  "./test", 'Directoroy to save test results.')
   flags.DEFINE_bool('channels_first', False, 'Channel first flag.')
   flags.DEFINE_string('ckpt_dir', "", 'Pretrained checkpoint dir.')
 
 
-class EfficientNetV2Inferencer:
+class EfficientNetV2Evaluator:
   # Constructor
   def __init__(self):
 
     self.classes = []
-    #Brain-Tumor-Classification-Dataset
-    # https://github.com/sartajbhuvaji/brain-tumor-classification-dataset
-    #['glioma_tumor', 'meningioma_tumor', 'no_tumor', 'pituitary_tumor']
 
     with open(FLAGS.label_map, "r") as f:
        lines = f.readlines()
@@ -90,15 +88,19 @@ class EfficientNetV2Inferencer:
           self.classes.append(line.strip())
     print("--- classes {}".format(self.classes))
 
+
     tf.keras.backend.clear_session()
 
     tf.config.run_functions_eagerly(FLAGS.debug)
   
+    tf.keras.backend.clear_session()
+
     model_name  = FLAGS.model_name
     image_size  = FLAGS.image_size
     num_classes = FLAGS.num_classes
     fine_tuning = FLAGS.fine_tuning
     trainable_layers_ratio = FLAGS.trainable_layers_ratio
+    
     
     finetuning_model = FineTuningModel(model_name, None, FLAGS.debug)
 
@@ -113,72 +115,28 @@ class EfficientNetV2Inferencer:
 
     if not os.path.exists(best_model):
       raise Exception("Not found best_model " + best_model)
-    self.model.load_weights(best_model, by_name=True, )
+    self.model.compile()
+    self.model.load_weights(best_model) #, by_name=False)
     print("--- loaded weights {}".format(best_model))
   
 
-  def infer(self ):
-    infer_dir   = FLAGS.infer_dir
-    if not os.path.exists(infer_dir):
-      os.makedirs(infer_dir)
-    inference_results_file = os.path.join(infer_dir, "inference.csv")
-
-    NL = "\n"
-    SP = ","
-    with open(inference_results_file, "w") as f:
-      head = "filename, label, prediction1, score1, prediction2, score2" + NL
-      f.write(head)
-
-      # image.path = ./somewhere/*.jpg
-      image_files = glob.glob(FLAGS.image_path)
-      #print(" {}".format(image_files))
-      print("--- eval_image_size {}".format(FLAGS.eval_image_size))
-      print("\n--- image_path {}".format(FLAGS.image_path))
-      for image_file in image_files:
-
-        image = tf.io.read_file(image_file)
-        image = preprocessing.preprocess_image(
-          image, 
-          image_size  = FLAGS.eval_image_size, 
-          is_training = False)
-        # A tensor with a length 1 axis inserted at index axis.
-        image  = tf.expand_dims(image, 0)
-        logits = self.model(image, training=False)
-
-        pred   = tf.keras.layers.Softmax()(logits)
-        idx    = tf.argsort(logits[0])[::-1][:5].numpy()
-        basename = os.path.basename(image_file)
-        clsname = ""
-        try:
-          clsname = basename.split("___")[0]
-        except:
-          pass
-        if len(clsname) >0:
-          print("\n--- image_file: {}  class: {} ".format(basename, clsname))
-        else:
-          print("\n--- image_file: {}".format(clsname, basename))
-
-        line = basename + SP + clsname  
-
-
-        TOP2 = 2
-        for i, id in enumerate(idx):
-          #print(f'top {i+1} ({pred[0][id]*100:.1f}%):  {self.classes[id]} ')
-          score = round(float(pred[0][id]), 4)
-          label = self.classes[id] 
-          line = line + SP + label + SP + str(score) 
-
-          print(f'prediction {i+1} ({pred[0][id]*100:.1f}%):  {self.classes[id]} ')
-          if (i + 1) ==TOP2: 
-            break
-        #print(line)
-        f.write(line + NL)
-        
-
+  def run(self ):
+    print("--- EfficientNetV2Evaluator.run() ")
+    test_dir   = FLAGS.test_dir
+    if not os.path.exists(test_dir):
+      os.makedirs(test_dir)
+    test_results_file = os.path.join(test_dir, "test.csv")
+    test_dataset = TestDataset()
+    test_gen     = test_dataset.create(FLAGS)
+    print("--- call model.evaluate ")
+    y_pred = self.model.predict(test_gen, verbose=1) 
+    print("{}".format(pred))
+    predictions = np.array(list(map(lambda x: np.argmax(x), y_pred)))
+    print("--- prediction {}".format(prediction))
 def main(_):
   
-  inferncer = EfficientNetV2Inferencer()
-  inferncer.infer()
+  tester = EfficientNetV2Evaluator()
+  tester.run()
 
 
 if __name__ == '__main__':

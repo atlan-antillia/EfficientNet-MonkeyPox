@@ -51,6 +51,7 @@ import hparams
 import utils
 #import effnetv2_configs
 #import effnetv2_model
+
 import shutil
 
 sys.path.append("../../")
@@ -93,13 +94,13 @@ class EfficientNetV2ModelTrainer:
 
     trainable_layers_ratio = FLAGS.trainable_layers_ratio
     if not (trainable_layers_ratio > 0.1 and trainable_layers_ratio <0.5):
-      print("--- Set default trainable_layers_ratio=0.3")
-      trainable_layers_ratio = 0.3
+       print("--- Set default trainable_layers_ratio=0.3")
+       trainable_layers_ratio = 0.3
 
     finetuning_model = FineTuningModel(model_name, ckpt_dir)
     
     self.model = finetuning_model.build(image_size, 
-                                        num_classes, 
+                                        num_classes,
                                         fine_tuning, 
                                         trainable_layers_ratio = trainable_layers_ratio)
     #self.model.build((None, image_size, image_size, 3))
@@ -172,8 +173,8 @@ class EfficientNetV2ModelTrainer:
     learning_rate=FLAGS.learning_rate
     # Use adam 
     optimizer = self.build_optimizer(
-        learning_rate, #optimizer_name='adam') 
-        optimizer_name='rmsprop')
+        learning_rate,  #optimizer_name='adam') 
+        optimizer_name=FLAGS.optimizer) # 2022/08/01 'rmsprop')
     
     loss      = tf.keras.losses.CategoricalCrossentropy(from_logits=True, label_smoothing=0.1),
     self.model.compile(
@@ -198,7 +199,6 @@ class EfficientNetV2ModelTrainer:
         verbose           = 1,
         save_best_only    = True,
         save_weights_only = True)
-    #ckpt_callback.set_model(self.model)
     
     #tb_callback = tf.keras.callbacks.TensorBoard(
     #    log_dir=FLAGS.model_dir, update_freq=100)
@@ -208,6 +208,7 @@ class EfficientNetV2ModelTrainer:
     steps_per_epoch  = self.train_generator.samples // self.train_generator.batch_size
     validation_steps = self.valid_generator.samples // self.valid_generator.batch_size
     callbacks =  [epch_callback, ckpt_callback, rstr_callback]
+
     # FLAGS.patience default value is 0
     if FLAGS.patience > 0:
       erstp_callback = tf.keras.callbacks.EarlyStopping(monitor  = FLAGS.monitor, 
