@@ -29,7 +29,7 @@ class TestDataset:
     pass
 
   def create(self, FLAGS):
-    test_dir    = FLAGS.test_dir
+    data_dir    = FLAGS.data_dir
     image_size  = FLAGS.image_size
     eval_image_size = FLAGS.eval_image_size
     target_size = (image_size, image_size)
@@ -40,17 +40,15 @@ class TestDataset:
 
     print("---- No data_augumentation ")
     test_datagen = tf.keras.preprocessing.image.ImageDataGenerator(
-          rescale            = 1/255,  
-          validation_split   = 0.9,
-    
+          rescale            = 1/255,    
        )
     test_generator = test_datagen.flow_from_directory(
-             test_dir, 
+             data_dir, 
              target_size   = eval_size, 
              batch_size    = 1,
              interpolation = "bilinear",
-             subset        = "validation", 
-             shuffle       = True)
+             class_mode    = 'categorical',
+             shuffle       = False)
 
 
     return test_generator

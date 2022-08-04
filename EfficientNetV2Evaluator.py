@@ -1,4 +1,4 @@
-# Copyright 2021 Google Research. All Rights Reserved.
+# Copyright 2022 Antillia.com. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -28,17 +28,24 @@ import time
 import numpy as np
 import glob
 
+
 from absl import app
 from absl import flags
 from absl import logging
 import tensorflow as tf
+import pandas as pd 
+import seaborn as sns
+import matplotlib.pyplot as plt
+from PIL import Image
+from matplotlib.image import imread
+from sklearn.metrics import classification_report
 
-import preprocessing
-
+#from sklearn.metrics import precision_recall_fscore_support
+from sklearn.metrics import confusion_matrix
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 sys.path.append("../../")
 from TestDataset import TestDataset
 from FineTuningModel import FineTuningModel
-import tensorflow as tf
 
 from tensorflow.python.ops.numpy_ops import np_config
 np_config.enable_numpy_behavior()
@@ -70,7 +77,7 @@ def define_flags():
   flags.DEFINE_bool('mixed_precision', True, 'If True, use mixed precision.')
   flags.DEFINE_bool('fine_tuning', True,  'Fine tuning flag')
   flags.DEFINE_float('trainable_layers_ratio',  0.3, 'Trainable layers ratio')
-  flags.DEFINE_string('test_dir',  "./test", 'Directoroy to save test results.')
+  flags.DEFINE_string('evaluation_dir',  "./evaluation", 'Directoroy to save test results.')
   flags.DEFINE_bool('channels_first', False, 'Channel first flag.')
   flags.DEFINE_string('ckpt_dir', "", 'Pretrained checkpoint dir.')
 
@@ -115,24 +122,91 @@ class EfficientNetV2Evaluator:
 
     if not os.path.exists(best_model):
       raise Exception("Not found best_model " + best_model)
-    self.model.compile()
-    self.model.load_weights(best_model) #, by_name=False)
+    #self.model.compile()
+    self.model.load_weights(best_model, by_name=True)
     print("--- loaded weights {}".format(best_model))
-  
+    self.evaluation_dir = FLAGS.evaluation_dir
+    if not os.path.exists(self.evaluation_dir):
+      os.makedirs(self.evaluation_dir)
+
 
   def run(self ):
     print("--- EfficientNetV2Evaluator.run() ")
-    test_dir   = FLAGS.test_dir
-    if not os.path.exists(test_dir):
-      os.makedirs(test_dir)
-    test_results_file = os.path.join(test_dir, "test.csv")
     test_dataset = TestDataset()
     test_gen     = test_dataset.create(FLAGS)
     print("--- call model.evaluate ")
     y_pred = self.model.predict(test_gen, verbose=1) 
-    print("{}".format(pred))
+    print("{}".format(y_pred))
     predictions = np.array(list(map(lambda x: np.argmax(x), y_pred)))
-    print("--- prediction {}".format(prediction))
+    print("--- predictions {}".format(predictions))
+
+    y_true=test_gen.classes
+    print("--- y_true {}".format(y_true))
+    self.compute_classification_score(y_true, predictions)
+    
+    self.create_classification_report(y_true, predictions, self.classes)
+    
+    self.create_confusion_matrix(y_true, predictions, self.classes, self.evaluation_dir, fig_size=(8, 6))
+
+
+  def compute_classification_score(self, y_true, y_pred):
+    accuracy = accuracy_score(y_true, y_pred)
+    accuracy = round(accuracy, 4)
+    print("--- accuracy {}".format(accuracy))
+    precision = precision_score(y_true, y_pred)
+    precision = round(precision, 4)
+    print("--- precision {}".format(precision))
+
+    recall    = recall_score(y_true, y_pred)
+    recall    = round(recall, 4)
+    print("--- recall {}".format(recall))
+
+    f1        = f1_score(y_true, y_pred)
+    f1        = round(f1, 4)
+    print("--- f1 {}".format(f1))
+    evaluation_csv_file = os.path.join(self.evaluation_dir, "evaluation.csv")
+    NL = "\n"
+    SEP = ","
+    with open(evaluation_csv_file, "w") as f:
+      f.write("accuray, precison, recall, f1" + NL)
+      line = str(accuracy) + SEP + str(precision) + SEP + str(recall) + SEP + str(f1) 
+      f.write(line + NL)
+
+
+  def create_classification_report(self, y_true, predictions, classes): 
+    cls_report = classification_report( 
+                               y_true       = y_true,
+                               y_pred       = predictions,
+                               target_names = classes, 
+                               output_dict  = True)
+    print(cls_report)
+    report_df = pd.DataFrame(cls_report).T
+    cls_report_csv_file = os.path.join(self.evaluation_dir, "classification_report.csv")
+
+    report_df.to_csv(cls_report_csv_file)
+
+
+  def create_confusion_matrix(self, y_true, predictions, classes, save_dir, fig_size=(8, 6)):
+    labels = sorted(list(set(y_true)))
+    print("---- y_true {}".format(y_true))
+    cmatrix = confusion_matrix(y_true, predictions, labels= labels) 
+    print("---confusion matrix {}".format(cmatrix))
+    plt.figure(figsize=fig_size) 
+    ax = sns.heatmap(cmatrix, annot = True, xticklabels=classes, yticklabels=classes, cmap = 'Blues')
+    ax.set_title('Confusion Matrix',fontsize = 14, weight = 'bold' ,pad=20)
+
+    ax.set_xlabel('Predicted',fontsize = 12, weight='bold')
+    #ax.set_xticklabels(ax.get_xticklabels(), rotation =0)
+    ax.set_ylabel('Actual',fontsize = 12, weight='bold') 
+    #ax.set_yticklabels(ax.get_yticklabels(), rotation =0)
+
+    if not os.path.exists(save_dir):
+      os.makedirs(save_dir)
+
+    confusion_matrix_file = os.path.join(save_dir, "confusion_matrix.png")
+    plt.savefig(confusion_matrix_file)    
+    #plt.show()
+
 def main(_):
   
   tester = EfficientNetV2Evaluator()

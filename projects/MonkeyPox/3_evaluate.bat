@@ -1,14 +1,14 @@
-rem 2_inference.bat
-python ../../EfficientNetV2Inferencer.py ^
+rem 3_evaluate.bat
+python ../../EfficientNetV2Evaluator.py ^
   --model_name=efficientnetv2-m  ^
   --model_dir=./models ^
+  --data_dir=./Testing ^
+  --evaluation_dir=./evaluation ^
   --fine_tuning=True ^
   --trainable_layers_ratio=0.4 ^
-  --image_path=./test/*.jpg ^
   --eval_image_size=480 ^
   --num_classes=2 ^
   --label_map=./label_map.txt ^
   --mixed_precision=True ^
-  --infer_dir=./inference ^
   --debug=False 
  

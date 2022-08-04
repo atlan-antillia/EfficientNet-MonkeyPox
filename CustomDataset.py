@@ -63,6 +63,8 @@ class CustomDataset:
    
           rotation_range     = parser.get(TRAINING, "rotation_range", 8),
           horizontal_flip    = parser.get(TRAINING, "horizontal_flip", True),
+          vertical_flip      = parser.get(TRAINING, "vertical_flip", True),
+
           width_shift_range  = parser.get(TRAINING, "width_shift_range", 0.9), 
           height_shift_range = parser.get(TRAINING, "height_shift_range", 0.9),
           shear_range        = parser.get(TRAINING, "shear_range", 0.1), 
@@ -89,6 +91,7 @@ class CustomDataset:
 
           rotation_range     = parser.get(VALIDATION, "rotation_range", 8),
           horizontal_flip    = parser.get(VALIDATION, "horizontal_flip", True),
+          vertical_flip      = parser.get(VALIDATION, "vertical_flip", True),
           width_shift_range  = parser.get(VALIDATION, "width_shift_range", 0.9), 
           height_shift_range = parser.get(VALIDATION, "height_shift_range", 0.9),
           shear_range        = parser.get(VALIDATION, "shear_range", 0.1), 

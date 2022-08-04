@@ -44,19 +44,19 @@ def define_flags():
 
   flags.DEFINE_string('strategy', 'gpu', 'Strategy: tpu, gpus, gpu.')
   flags.DEFINE_string('best_model_name', 'best_model.5h', 'Best model name.')
-  flags.DEFINE_integer('num_classes', 10, 'Number of classes')
-  flags.DEFINE_float('learning_rate',  0.005, 'Learning rate')
-  
+  flags.DEFINE_integer('num_classes', 10, 'Number of classes.')
+  flags.DEFINE_float('learning_rate',  0.005, 'Learning rate.')
+
   flags.DEFINE_integer('image_size', 384, 'Image size. 384 if model_name==efficientnetv2-s')
   flags.DEFINE_integer('batch_size', 8, 'Number of batch_size.')
   flags.DEFINE_integer('num_epochs', 10, 'Number of epochs.')
   flags.DEFINE_integer('eval_image_size', None, 'Eval image size.')
   flags.DEFINE_string('eval_dir', './eval', 'Eval directory to save train loss and accuracy.')
   
-  flags.DEFINE_bool('data_augmentation', True, 'Data augumentation flag')
-  flags.DEFINE_bool('fine_tuning', True, 'Fine tuning flag')
+  flags.DEFINE_bool('data_augmentation', True, 'Data augumentation flag.')
+  flags.DEFINE_bool('fine_tuning', True, 'Fine tuning flag.')
   flags.DEFINE_bool('debug', True, 'Debug flag.')
-  flags.DEFINE_float('trainable_layers_ratio',  0.3, 'Trainable layers ratio')
+  flags.DEFINE_float('trainable_layers_ratio',  0.3, 'Trainable layers ratio.')
   flags.DEFINE_string('monitor', 'val_loss', 'Early stopping monitor.')
   flags.DEFINE_string('optimizer', 'adam', 'Optimizer.')
 

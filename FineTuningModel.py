@@ -29,12 +29,16 @@ import numpy as np
 import tensorflow as tf
 from effnetv2_model import EffNetV2Model
 
+import effnetv2_model
+
+"""
 import cflags
 import datasets
 import effnetv2_configs
 import effnetv2_model
 import hparams
 import utils
+"""
 
 sys.path.append("../../")
 
@@ -49,7 +53,7 @@ class FineTuningModel:
     #self.channels_first = channels_first
 
     #self.base_model = effnetv2_model.get_model(model_name, include_top=False)
-    
+        
     self.base_model = EffNetV2Model(model_name, include_top=False)
     
     input_shape = (None, None, 3)
@@ -57,7 +61,7 @@ class FineTuningModel:
     self.base_model(tf.keras.Input(shape=input_shape),
       training       = True,
       with_endpoints = False)
-
+    
     if pretrained_ckpt !=None:
       if tf.io.gfile.isdir(pretrained_ckpt):
         pretrained_ckpt = tf.train.latest_checkpoint(pretrained_ckpt)
@@ -99,6 +103,8 @@ class FineTuningModel:
       tf.keras.layers.Dense(num_classes, 
                           name       = "predictions",
                           kernel_regularizer=tf.keras.regularizers.l2(0.0001))
+                          #kernel_regularizer=tf.keras.regularizers.l2(0.0004))
+
     ])
 
     return self.model

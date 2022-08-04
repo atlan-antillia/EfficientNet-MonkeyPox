@@ -93,10 +93,12 @@ class EfficientNetV2ModelTrainer:
     ckpt_dir    = FLAGS.ckpt_dir
 
     trainable_layers_ratio = FLAGS.trainable_layers_ratio
-    if not (trainable_layers_ratio > 0.1 and trainable_layers_ratio <0.5):
+    """
+    if not (trainable_layers_ratio > 0.1 or trainable_layers_ratio <1.0):
        print("--- Set default trainable_layers_ratio=0.3")
        trainable_layers_ratio = 0.3
-
+    """
+    
     finetuning_model = FineTuningModel(model_name, ckpt_dir)
     
     self.model = finetuning_model.build(image_size, 
