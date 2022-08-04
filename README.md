@@ -5,19 +5,14 @@ EfficientNet MonkeyPox (Updated: 2022/08/05)
 <a href="#1.1">1.1 Clone repository</a><br>
 <a href="#1.2">1.2 Install Python packages</a><br>
 <a href="#2">2 Python classes for MonkeyPox Detection</a><br>
-
 <a href="#3">3 Pretrained model</a><br>
-
 <a href="#4">4 Train</a><br>
 <a href="#4.1">4.1 Train script</a><br>
 <a href="#4.2">4.2 Training result</a><br>
-
 <a href="#5">5 Inference</a><br>
 <a href="#5.1">5.1 Inference script</a><br>
 <a href="#5.2">5.2 Sample test images</a><br>
-
 <a href="#5.3">5.3 Inference result</a><br>
-
 <a href="#6">6 Evaluation</a><br>
 <a href="#6.1">6.1 Evaluation script</a><br>
 <a href="#6.2">6.2 Evaluation result</a><br>
