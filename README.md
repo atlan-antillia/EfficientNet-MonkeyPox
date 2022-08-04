@@ -331,6 +331,10 @@ This evaluation command will generate <a href="./projects/MonkeyPox/evaluation/c
  and <a href="./projects/MonkeyPox/evaluation/confusion_matrix.png">a confusion_matrix</a>.
 <br>
 <br>
+Evaluation console output:<br>
+<img src="./asset/MonkeyPox_evaluate_console_output_at_epoch_17_0805.png" width="740" height="auto"><br>
+<br>
+
 Classification report:<br>
 <img src="./asset/MonkeyPox_classification_report_at_epoch_17_0804.png" width="740" height="auto"><br>
 <br>

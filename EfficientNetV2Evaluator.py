@@ -27,7 +27,7 @@ os.environ["TF_FORCE_GPU_ALLOW_GROWTH"] = "true"
 import time
 import numpy as np
 import glob
-
+import pprint
 
 from absl import app
 from absl import flags
@@ -138,10 +138,10 @@ class EfficientNetV2Evaluator:
     y_pred = self.model.predict(test_gen, verbose=1) 
     print("{}".format(y_pred))
     predictions = np.array(list(map(lambda x: np.argmax(x), y_pred)))
-    print("--- predictions {}".format(predictions))
+    print("--- predictions:\n{}".format(predictions))
 
     y_true=test_gen.classes
-    print("--- y_true {}".format(y_true))
+    print("--- y_true:\n{}".format(y_true))
     self.compute_classification_score(y_true, predictions)
     
     self.create_classification_report(y_true, predictions, self.classes)
@@ -179,7 +179,9 @@ class EfficientNetV2Evaluator:
                                y_pred       = predictions,
                                target_names = classes, 
                                output_dict  = True)
-    print(cls_report)
+    print("--- classification report:\n")
+    pprint.pprint(cls_report)
+
     report_df = pd.DataFrame(cls_report).T
     cls_report_csv_file = os.path.join(self.evaluation_dir, "classification_report.csv")
 
@@ -188,9 +190,8 @@ class EfficientNetV2Evaluator:
 
   def create_confusion_matrix(self, y_true, predictions, classes, save_dir, fig_size=(8, 6)):
     labels = sorted(list(set(y_true)))
-    print("---- y_true {}".format(y_true))
     cmatrix = confusion_matrix(y_true, predictions, labels= labels) 
-    print("---confusion matrix {}".format(cmatrix))
+    print("--- confusion matrix:\n{}".format(cmatrix))
     plt.figure(figsize=fig_size) 
     ax = sns.heatmap(cmatrix, annot = True, xticklabels=classes, yticklabels=classes, cmap = 'Blues')
     ax.set_title('Confusion Matrix',fontsize = 14, weight = 'bold' ,pad=20)
