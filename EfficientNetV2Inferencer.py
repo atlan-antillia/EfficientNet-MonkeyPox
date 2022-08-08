@@ -38,6 +38,8 @@ import preprocessing
 sys.path.append("../../")
 
 from FineTuningModel import FineTuningModel
+#from ConfusionMatrix import ConfusionMatrix
+
 import tensorflow as tf
 
 from tensorflow.python.ops.numpy_ops import np_config
@@ -86,8 +88,9 @@ class EfficientNetV2Inferencer:
     with open(FLAGS.label_map, "r") as f:
        lines = f.readlines()
        for line in lines:
+        line = line.strip()
         if len(line) >0:
-          self.classes.append(line.strip())
+          self.classes.append(line)
     print("--- classes {}".format(self.classes))
 
     tf.keras.backend.clear_session()
@@ -96,9 +99,14 @@ class EfficientNetV2Inferencer:
   
     model_name  = FLAGS.model_name
     image_size  = FLAGS.image_size
-    num_classes = FLAGS.num_classes
+    #num_classes = FLAGS.num_classes
+    num_classes = len(self.classes)
     fine_tuning = FLAGS.fine_tuning
     trainable_layers_ratio = FLAGS.trainable_layers_ratio
+
+    if trainable_layers_ratio < 0.1 or trainable_layers_ratio >=0.5:
+       print("--- Set default trainable_layers_ratio=0.3")
+       trainable_layers_ratio = 0.3
     
     finetuning_model = FineTuningModel(model_name, None, FLAGS.debug)
 

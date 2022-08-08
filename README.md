@@ -1,5 +1,5 @@
 <h2>
-EfficientNet MonkeyPox (Updated: 2022/08/05)
+EfficientNet MonkeyPox (Updated: 2022/08/08)
 </h2>
 <a href="#1">1 EfficientNetV2 MonkeyPox Skin Lesion Detection </a><br>
 <a href="#1.1">1.1 Clone repository</a><br>
@@ -43,11 +43,17 @@ year={2022}
 
  We use python 3.8 and tensorflow 2.8.0 environment on Windows 11 for this project.<br>
 <li>
-2022/08/04: Udated <a href="./projects/MonkeyPox/data_generator.config">a data_generator.config</a> file to improve validation accuracy.
-</li>
-<li>
 2022/08/04: Added <a href="./EfficientNetV2Evaluator.py">EfficientNetV2Evaluator</a> class to evaluate Testing dataset.
 </li>
+<li>
+2022/08/08: Udated <a href="./projects/MonkeyPox/data_generator.config">a data_generator.config</a> file to improve validation accuracy.
+</li>
+<li>
+2022/08/08: Added <a href="./ClassificationReportWriter.py">ClassificationReportWriter</a> 
+and <a href="./ConfusionMatrix.py">ConfusionMatrix</a> classes to evaluate Testing dataset.
+</li>
+
+<br>
    
 <h3>
 <a id="1.1">1.1 Clone repository</a>
@@ -94,16 +100,17 @@ pip install -r requirements.txt
 We have defined the following python classes to implement our MonkeyPox Detection.<br>
 
 <li>
+<a href="./ClassificationReportWriter.py">ClassificationResportWriter</a>
+</li>
+<li>
+<a href="./ConfusionMatrix.py">ConfusionMatrix</a>
+</li>
+<li>
 <a href="./CustomDataset.py">CustomDataset</a>
 </li>
 <li>
-<a href="./TestDataset.py">TestDataset</a>
-</li>
-
-<li>
 <a href="./EpochChangeCallback.py">EpochChangeCallback</a>
 </li>
-
 <li>
 <a href="./FineTuningModel.py">FineTuningModel</a>
 </li>
@@ -118,6 +125,10 @@ We have defined the following python classes to implement our MonkeyPox Detectio
 <li>
 <a href="./EfficientNetV2Inferencer.py">EfficientNetV2Inferencer</a>
 </li>
+<li>
+<a href="./TestDataset.py">TestDataset</a>
+</li>
+<br>
 
 <h2>
 <a id="3">3 Pretrained model</a>
@@ -154,7 +165,6 @@ python ../../EfficientNetV2ModelTrainer.py ^
   --data_generator_config=./data_generator.config ^
   --ckpt_dir=../../efficientnetv2-m/model ^
   --optimizer=adam ^
-  --num_classes=2 ^
   --image_size=384 ^
   --eval_image_size=480 ^
   --data_dir=./Training ^
@@ -162,54 +172,50 @@ python ../../EfficientNetV2ModelTrainer.py ^
   --data_augmentation=True ^
   --fine_tuning=True ^
   --monitor=val_loss ^
-  --learning_rate=0.001 ^
+  --learning_rate=0.0015 ^
   --trainable_layers_ratio=0.4 ^
   --num_epochs=50 ^
   --batch_size=4 ^
   --patience=10 ^
-  --debug=True
+  --debug=True  
 </pre>
 ,where data_generator.config is the following<br>
 <pre>
 ; data_generation.config
+
 [training]
 validation_split   = 0.2
-featurewise_center = False
-samplewise_center  = True
-featurewise_std_normalization=False
-samplewise_std_normalization =True
+featurewise_center = True
+samplewise_center  = False
+featurewise_std_normalization=True
+samplewise_std_normalization =False
 zca_whitening                =False
-
-rotation_range     = 6
+rotation_range     = 8
 horizontal_flip    = True
 vertical_flip      = True
  
-width_shift_range  = 0.2
-height_shift_range = 0.2
+width_shift_range  = 0.1
+height_shift_range = 0.1
 shear_range        = 0.1
 zoom_range         = [0.5, 1.5]
-;zoom_range         = 0.1
-
+;zoom_range         = 0.2
 data_format        = "channels_last"
 
 [validation]
 validation_split   = 0.2
-featurewise_center = False
-samplewise_center  = True
-featurewise_std_normalization=False
-samplewise_std_normalization =True
+featurewise_center = True
+samplewise_center  = False
+featurewise_std_normalization=True
+samplewise_std_normalization =False
 zca_whitening                =False
-
-rotation_range     = 6
+rotation_range     = 8
 horizontal_flip    = True
 vertical_flip      = True
-       
-width_shift_range  = 0.2
-height_shift_range = 0.2
+width_shift_range  = 0.1
+height_shift_range = 0.1
 shear_range        = 0.1
 zoom_range         = [0.5, 1.5]
-;zoom_range         = 0.1
-
+;zoom_range         = 0.2
 data_format        = "channels_last"
 </pre>
 
@@ -222,14 +228,14 @@ and <a href="./projects/MonkeyPox/eval/train_losses.csv">train_losses</a> files
 </h3>
 
 Training console output:<br>
-<img src="./asset/MonkeyPox_train_console_output_at_epoch_17_0804.png" width="740" height="auto"><br>
+<img src="./asset/MonkeyPox_train_console_output_at_epoch_20_0808-2.png" width="740" height="auto"><br>
 <br>
 Train_accuracies:<br>
-<img src="./asset/MonkeyPox_train_accuracies_at_epoch_17_0804.png" width="740" height="auto"><br>
+<img src="./asset/MonkeyPox_train_accuracies_at_epoch_20_0808-2.png" width="740" height="auto"><br>
 
 <br>
 Train_losses:<br>
-<img src="./asset/MonkeyPox_train_losses_at_epoch_17_0804.png" width="740" height="auto"><br>
+<img src="./asset/MonkeyPox_train_losses_at_epoch_20_0808-2.png" width="740" height="auto"><br>
 
 <br>
 
@@ -252,7 +258,6 @@ python ../../EfficientNetV2Inferencer.py ^
   --trainable_layers_ratio=0.4 ^
   --image_path=./test/*.jpg ^
   --eval_image_size=480 ^
-  --num_classes=2 ^
   --label_map=./label_map.txt ^
   --mixed_precision=True ^
   --infer_dir=./inference ^
@@ -290,10 +295,10 @@ Others<br>
 This inference command will generate <a href="./projects/MonkeyPox/inference/inference.csv">inference result file</a>.
 <br>
 Inference console output:<br>
-<img src="./asset/MonkeyPox_infer_console_output_at_epoch_17_0804.png" width="740" height="auto"><br>
+<img src="./asset/MonkeyPox_infer_console_output_at_epoch_20_0808-2.png" width="740" height="auto"><br>
 <br>
 Inference result:<br>
-<img src="./asset/MonkeyPox_inference_result_at_epoch_17_0804.png" width="740" height="auto"><br>
+<img src="./asset/MonkeyPox_inference_result_at_epoch_20_0808-2.png" width="740" height="auto"><br>
 
 
 <h2>
@@ -316,7 +321,6 @@ python ../../EfficientNetV2Evaluator.py ^
   --fine_tuning=True ^
   --trainable_layers_ratio=0.4 ^
   --eval_image_size=480 ^
-  --num_classes=2 ^
   --label_map=./label_map.txt ^
   --mixed_precision=True ^
   --debug=False 
@@ -332,11 +336,11 @@ This evaluation command will generate <a href="./projects/MonkeyPox/evaluation/c
 <br>
 <br>
 Evaluation console output:<br>
-<img src="./asset/MonkeyPox_evaluate_console_output_at_epoch_17_0805.png" width="740" height="auto"><br>
+<img src="./asset/MonkeyPox_evaluate_console_output_at_epoch_20_0808-2.png" width="740" height="auto"><br>
 <br>
 
 Classification report:<br>
-<img src="./asset/MonkeyPox_classification_report_at_epoch_17_0804.png" width="740" height="auto"><br>
+<img src="./asset/MonkeyPox_classification_report_at_epoch_20_0808-2.png" width="740" height="auto"><br>
 <br>
 Confusion matrix:<br>
 <img src="./projects/MonkeyPox/evaluation/confusion_matrix.png" width="740" height="auto"><br>

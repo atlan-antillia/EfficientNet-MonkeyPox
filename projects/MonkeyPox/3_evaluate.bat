@@ -7,7 +7,6 @@ python ../../EfficientNetV2Evaluator.py ^
   --fine_tuning=True ^
   --trainable_layers_ratio=0.4 ^
   --eval_image_size=480 ^
-  --num_classes=2 ^
   --label_map=./label_map.txt ^
   --mixed_precision=True ^
   --debug=False 

@@ -6,7 +6,6 @@ python ../../EfficientNetV2Inferencer.py ^
   --trainable_layers_ratio=0.4 ^
   --image_path=./test/*.jpg ^
   --eval_image_size=480 ^
-  --num_classes=2 ^
   --label_map=./label_map.txt ^
   --mixed_precision=True ^
   --infer_dir=./inference ^

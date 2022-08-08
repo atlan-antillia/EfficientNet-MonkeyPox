@@ -24,10 +24,9 @@ sys.path.append("../../")
 
 os.environ["TF_FORCE_GPU_ALLOW_GROWTH"] = "true"
 
-import time
 import numpy as np
-import glob
 import pprint
+import csv
 
 from absl import app
 from absl import flags
@@ -37,8 +36,9 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 from PIL import Image
-from matplotlib.image import imread
-from sklearn.metrics import classification_report
+#from matplotlib.image import imread
+#from sklearn.metrics import classification_report
+
 
 #from sklearn.metrics import precision_recall_fscore_support
 from sklearn.metrics import confusion_matrix
@@ -46,6 +46,8 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_sc
 sys.path.append("../../")
 from TestDataset import TestDataset
 from FineTuningModel import FineTuningModel
+from ConfusionMatrix import ConfusionMatrix
+from ClassificationReportWriter import ClassificationReportWriter
 
 from tensorflow.python.ops.numpy_ops import np_config
 np_config.enable_numpy_behavior()
@@ -104,11 +106,20 @@ class EfficientNetV2Evaluator:
 
     model_name  = FLAGS.model_name
     image_size  = FLAGS.image_size
-    num_classes = FLAGS.num_classes
+    #num_classes = FLAGS.num_classes
     fine_tuning = FLAGS.fine_tuning
     trainable_layers_ratio = FLAGS.trainable_layers_ratio
+    if trainable_layers_ratio < 0.1 or trainable_layers_ratio >=0.5:
+       print("--- Set default trainable_layers_ratio=0.3")
+       trainable_layers_ratio = 0.3
     
-    
+    test_dataset = TestDataset()
+    self.test_generator = test_dataset.create(FLAGS)
+    class_indices       = self.test_generator.class_indices
+    print("--- class_indices {}".format(class_indices))
+    num_classes         = len(class_indices)
+
+    print("--- num_classes {}".format(num_classes))
     finetuning_model = FineTuningModel(model_name, None, FLAGS.debug)
 
     self.model = finetuning_model.build(image_size, 
@@ -129,84 +140,25 @@ class EfficientNetV2Evaluator:
     if not os.path.exists(self.evaluation_dir):
       os.makedirs(self.evaluation_dir)
 
-
   def run(self ):
     print("--- EfficientNetV2Evaluator.run() ")
-    test_dataset = TestDataset()
-    test_gen     = test_dataset.create(FLAGS)
     print("--- call model.evaluate ")
-    y_pred = self.model.predict(test_gen, verbose=1) 
+    y_pred = self.model.predict(self.test_generator, verbose=1) 
     print("{}".format(y_pred))
     predictions = np.array(list(map(lambda x: np.argmax(x), y_pred)))
     print("--- predictions:\n{}".format(predictions))
 
-    y_true=test_gen.classes
+    y_true = self.test_generator.classes
     print("--- y_true:\n{}".format(y_true))
-    self.compute_classification_score(y_true, predictions)
-    
-    self.create_classification_report(y_true, predictions, self.classes)
-    
-    self.create_confusion_matrix(y_true, predictions, self.classes, self.evaluation_dir, fig_size=(8, 6))
 
+    print("--- write_classification_report")
+    cls_report_writer  = ClassificationReportWriter()
+    cls_report_writer.write(y_true, predictions, self.classes, self.evaluation_dir)
 
-  def compute_classification_score(self, y_true, y_pred):
-    accuracy = accuracy_score(y_true, y_pred)
-    accuracy = round(accuracy, 4)
-    print("--- accuracy {}".format(accuracy))
-    precision = precision_score(y_true, y_pred)
-    precision = round(precision, 4)
-    print("--- precision {}".format(precision))
+    print("--- create_confusiion_matrix")
+    confusion_matrix = ConfusionMatrix(fig_size=(12, 8))
+    confusion_matrix.create(y_true, predictions, self.classes, self.evaluation_dir)
 
-    recall    = recall_score(y_true, y_pred)
-    recall    = round(recall, 4)
-    print("--- recall {}".format(recall))
-
-    f1        = f1_score(y_true, y_pred)
-    f1        = round(f1, 4)
-    print("--- f1 {}".format(f1))
-    evaluation_csv_file = os.path.join(self.evaluation_dir, "evaluation.csv")
-    NL = "\n"
-    SEP = ","
-    with open(evaluation_csv_file, "w") as f:
-      f.write("accuray, precison, recall, f1" + NL)
-      line = str(accuracy) + SEP + str(precision) + SEP + str(recall) + SEP + str(f1) 
-      f.write(line + NL)
-
-
-  def create_classification_report(self, y_true, predictions, classes): 
-    cls_report = classification_report( 
-                               y_true       = y_true,
-                               y_pred       = predictions,
-                               target_names = classes, 
-                               output_dict  = True)
-    print("--- classification report:\n")
-    pprint.pprint(cls_report)
-
-    report_df = pd.DataFrame(cls_report).T
-    cls_report_csv_file = os.path.join(self.evaluation_dir, "classification_report.csv")
-
-    report_df.to_csv(cls_report_csv_file)
-
-
-  def create_confusion_matrix(self, y_true, predictions, classes, save_dir, fig_size=(8, 6)):
-    labels = sorted(list(set(y_true)))
-    cmatrix = confusion_matrix(y_true, predictions, labels= labels) 
-    print("--- confusion matrix:\n{}".format(cmatrix))
-    plt.figure(figsize=fig_size) 
-    ax = sns.heatmap(cmatrix, annot = True, xticklabels=classes, yticklabels=classes, cmap = 'Blues')
-    ax.set_title('Confusion Matrix',fontsize = 14, weight = 'bold' ,pad=20)
-
-    ax.set_xlabel('Predicted',fontsize = 12, weight='bold')
-    #ax.set_xticklabels(ax.get_xticklabels(), rotation =0)
-    ax.set_ylabel('Actual',fontsize = 12, weight='bold') 
-    #ax.set_yticklabels(ax.get_yticklabels(), rotation =0)
-
-    if not os.path.exists(save_dir):
-      os.makedirs(save_dir)
-
-    confusion_matrix_file = os.path.join(save_dir, "confusion_matrix.png")
-    plt.savefig(confusion_matrix_file)    
-    #plt.show()
 
 def main(_):
   
