@@ -43,7 +43,7 @@ def create_test_dataset(test_dir, target_dir):
 
     
 if __name__ == "__main__":
-  test_dir = "./Testing"
+  test_dir = "./MonkeyPox-Images/Testing"
   dest_dir = "./test"
   try:
     if not os.path.exists(test_dir):
