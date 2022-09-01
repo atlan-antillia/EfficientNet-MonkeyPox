@@ -88,7 +88,7 @@ You will have the following directory tree:<br>
 The images in test, MonkeyPox-Imges/Testing and MonkeyPox-Imges/Training folders have been taken from
  <a href="https://www.kaggle.com/datasets/nafin59/monkeypox-skin-lesion-dataset">Monkeypox Skin Lesion Dataset</a>
 <br> 
-MonkeyPox-Images/Training/MonKey_Pox:<br>
+Sample images in MonkeyPox-Images/Training/MonKey_Pox:<br>
 <img src="./asset/MonkeyPox_Training_Monkey_Pox.png"  width="820" height="auto"><br>
 
 <br>
