@@ -1,5 +1,5 @@
 <h2>
-EfficientNet MonkeyPox (Updated: 2022/08/15)
+EfficientNet MonkeyPox (Updated: 2022/09/01)
 </h2>
 <a href="#1">1 EfficientNetV2 MonkeyPox Skin Lesion Detection </a><br>
 <a href="#1.1">1.1 Clone repository</a><br>
@@ -52,6 +52,9 @@ year={2022}
 2022/08/08: Added <a href="./ClassificationReportWriter.py">ClassificationReportWriter</a> 
 and <a href="./ConfusionMatrix.py">ConfusionMatrix</a> classes to evaluate Testing dataset.
 </li>
+<li>
+2022/09/01: Modified to use efficientnetv2-b0 pretrained model.
+</li>
 
 <br>
    
@@ -66,21 +69,23 @@ You will have the following directory tree:<br>
 <pre>
 .
 ├─asset
-├─g3doc
 └─projects
     └─MonkeyPox
         ├─eval
+        ├─evaluation
         ├─inference
-        ├─test
-        ├─Testing
-        │  ├─Monkey_Pox
-        │  └─Others
-        └─Training
-            ├─Monkey_Pox
-            └─Others
-            
+        ├─models
+        │  └─chief
+        ├─MonkeyPox-Images
+        │  ├─Testing
+        │  │  ├─Monkey_Pox
+        │  │  └─Others
+        │  └─Training
+        │      ├─Monkey_Pox
+        │      └─Others
+        └─test
 </pre>
-The images in test, Testing and Training folders have been taken from
+The images in test, MonkeyPox-Imges/Testing and MonkeyPox-Imges/Training folders have been taken from
  <a href="https://www.kaggle.com/datasets/nafin59/monkeypox-skin-lesion-dataset">Monkeypox Skin Lesion Dataset</a>
 <br> 
 MonkeyPox/Training/MonKey_Pox:<br>
@@ -136,15 +141,14 @@ We have defined the following python classes to implement our MonkeyPox Detectio
 <h2>
 <a id="3">3 Pretrained model</a>
 </h2>
- We have used pretrained <b>efficientnetv2-m</b> to train MonkeyPox Detection Model by using
+ We have used pretrained <b>efficientnetv2-b0</b> to train MonkeyPox Detection Model by using
  <a href="https://www.kaggle.com/datasets/nafin59/monkeypox-skin-lesion-dataset">Monkeypox Skin Lesion Dataset</a>
-Please download the pretrained checkpoint file from <a href="https://storage.googleapis.com/cloud-tpu-checkpoints/efficientnet/v2/efficientnetv2-m.tgz">efficientnetv2-m.tgz</a>, expand it, and place the model under our top repository.
+Please download the pretrained checkpoint file from <a href="https://storage.googleapis.com/cloud-tpu-checkpoints/efficientnet/v2/efficientnetv2-b0.tgz">efficientnetv2-b0.tgz</a>, expand it, and place the model under our top repository.
 
 <pre>
 .
 ├─asset
-├─efficientnetv2-m
-├─g3doc
+├─efficientnetv2-b0
 └─projects
     └─MonkeyPox
 </pre>
@@ -155,8 +159,8 @@ Please download the pretrained checkpoint file from <a href="https://storage.goo
 <h3>
 <a id="4.1">4.1 Train script</a>
 </h3>
-Please run the following bat file to train our MonkeyPox efficientnetv2 model by 
-using <a href="./projects/MonkeyPox/Training">MonkeyPox Training dataset</a>.<br>
+Please run the following bat file to train our MonkeyPox efficientnetv2-b0 model by 
+using <a href="./projects/MonkeyPox/MonkeyPox-Images/Training">MonkeyPox Training dataset</a>.<br>
 <pre>
 ./1_train.bat
 </pre>
@@ -164,19 +168,21 @@ using <a href="./projects/MonkeyPox/Training">MonkeyPox Training dataset</a>.<br
 rem 1_train.bat
 python ../../EfficientNetV2ModelTrainer.py ^
   --model_dir=./models ^
-  --model_name=efficientnetv2-m  ^
+  --model_name=efficientnetv2-b0  ^
   --data_generator_config=./data_generator.config ^
-  --ckpt_dir=../../efficientnetv2-m/model ^
+  --ckpt_dir=../../efficientnetv2-b0/model ^
   --optimizer=adam ^
-  --image_size=384 ^
-  --eval_image_size=480 ^
-  --data_dir=./Training ^
+  --image_size=224 ^
+  --eval_image_size=224 ^
+  --data_dir=./MonkeyPox-Images/Training ^
   --model_dir=./models ^
   --data_augmentation=True ^
+  --valid_data_augmentation=True ^
   --fine_tuning=True ^
   --monitor=val_loss ^
-  --learning_rate=0.0015 ^
+  --learning_rate=0.0004 ^
   --trainable_layers_ratio=0.4 ^
+  --dropout_rate=0.4 ^
   --num_epochs=50 ^
   --batch_size=4 ^
   --patience=10 ^
@@ -188,36 +194,35 @@ python ../../EfficientNetV2ModelTrainer.py ^
 
 [training]
 validation_split   = 0.2
-featurewise_center = True
+featurewise_center = False
 samplewise_center  = False
-featurewise_std_normalization=True
+featurewise_std_normalization=False
 samplewise_std_normalization =False
 zca_whitening                =False
-rotation_range     = 8
+rotation_range     = 20
 horizontal_flip    = True
 vertical_flip      = True
- 
 width_shift_range  = 0.1
 height_shift_range = 0.1
-shear_range        = 0.1
-zoom_range         = [0.5, 1.5]
+shear_range        = 0.01
+zoom_range         = [0.1, 2.0]
 ;zoom_range         = 0.2
 data_format        = "channels_last"
 
 [validation]
 validation_split   = 0.2
-featurewise_center = True
+featurewise_center = False
 samplewise_center  = False
-featurewise_std_normalization=True
+featurewise_std_normalization=False
 samplewise_std_normalization =False
 zca_whitening                =False
-rotation_range     = 8
+rotation_range     = 20
 horizontal_flip    = True
 vertical_flip      = True
 width_shift_range  = 0.1
 height_shift_range = 0.1
-shear_range        = 0.1
-zoom_range         = [0.5, 1.5]
+shear_range        = 0.01
+zoom_range         = [0.1, 2.0]
 ;zoom_range         = 0.2
 data_format        = "channels_last"
 </pre>
@@ -231,14 +236,19 @@ and <a href="./projects/MonkeyPox/eval/train_losses.csv">train_losses</a> files
 </h3>
 
 Training console output:<br>
-<img src="./asset/MonkeyPox_train_console_output_at_epoch_20_0808-2.png" width="740" height="auto"><br>
+
+<br>
+<img src="./asset/MonkeyPox_train_console_output_at_epoch_27_0902.png" width="840" height="auto"><br>
+<br>
+As shown above, please note that the <b>best_model.h5</b> has been saved at epoch 17.
+<br>
 <br>
 Train_accuracies:<br>
-<img src="./asset/MonkeyPox_train_accuracies_at_epoch_20_0808-2.png" width="740" height="auto"><br>
+<img src="./projects/MonkeyPox/eval/train_accuracies.png" width="740" height="auto"><br>
 
 <br>
 Train_losses:<br>
-<img src="./asset/MonkeyPox_train_losses_at_epoch_20_0808-2.png" width="740" height="auto"><br>
+<img src="./projects/MonkeyPox/eval/train_losses.png" width="740" height="auto"><br>
 
 <br>
 
@@ -255,16 +265,17 @@ Please run the following bat file to infer the MonkeyPox test images by the mode
 <pre>
 rem 2_inference.bat
 python ../../EfficientNetV2Inferencer.py ^
-  --model_name=efficientnetv2-m  ^
+  --model_name=efficientnetv2-b0  ^
   --model_dir=./models ^
   --fine_tuning=True ^
   --trainable_layers_ratio=0.4 ^
+  --dropout_rate=0.4 ^
   --image_path=./test/*.jpg ^
-  --eval_image_size=480 ^
+  --eval_image_size=224 ^
   --label_map=./label_map.txt ^
   --mixed_precision=True ^
   --infer_dir=./inference ^
-  --debug=False
+  --debug=False 
 </pre>
 , where label_map.txt is the following:<br>
 <pre>
@@ -304,10 +315,10 @@ Others<br>
 This inference command will generate <a href="./projects/MonkeyPox/inference/inference.csv">inference result file</a>.
 <br>
 Inference console output:<br>
-<img src="./asset/MonkeyPox_infer_console_output_at_epoch_20_0808-2.png" width="740" height="auto"><br>
+<img src="./asset/MonkeyPox_infer_console_output_at_epoch_27_0902.png" width="840" height="auto"><br>
 <br>
 Inference result:<br>
-<img src="./asset/MonkeyPox_inference_result_at_epoch_20_0808-2.png" width="740" height="auto"><br>
+<img src="./asset/MonkeyPox_inference_result_at_epoch_27_0902.png" width="740" height="auto"><br>
 
 
 <h2>
@@ -323,13 +334,14 @@ Please run the following bat file to evaluate <a href="./projects/MonkeyPox/Test
 <pre>
 rem 3_evaluate.bat
 python ../../EfficientNetV2Evaluator.py ^
-  --model_name=efficientnetv2-m  ^
+  --model_name=efficientnetv2-b0  ^
   --model_dir=./models ^
-  --data_dir=./Testing ^
+  --data_dir=./MonkeyPox-Images/Testing ^
   --evaluation_dir=./evaluation ^
   --fine_tuning=True ^
   --trainable_layers_ratio=0.4 ^
-  --eval_image_size=480 ^
+  --dropout_rate=0.4 ^
+  --eval_image_size=224 ^
   --label_map=./label_map.txt ^
   --mixed_precision=True ^
   --debug=False 
@@ -345,11 +357,11 @@ This evaluation command will generate <a href="./projects/MonkeyPox/evaluation/c
 <br>
 <br>
 Evaluation console output:<br>
-<img src="./asset/MonkeyPox_evaluate_console_output_at_epoch_20_0808-2.png" width="740" height="auto"><br>
+<img src="./asset/MonkeyPox_evaluate_console_output_at_epoch_27_0902.png" width="840" height="auto"><br>
 <br>
 
 Classification report:<br>
-<img src="./asset/MonkeyPox_classification_report_at_epoch_20_0808-2.png" width="740" height="auto"><br>
+<img src="./asset/MonkeyPox_classification_report_at_epoch_27_0902.png" width="740" height="auto"><br>
 <br>
 Confusion matrix:<br>
 <img src="./projects/MonkeyPox/evaluation/confusion_matrix.png" width="740" height="auto"><br>

@@ -64,7 +64,9 @@ def define_flags():
 
   # 2022/07/20
   flags.DEFINE_integer('eval_image_size', None, 'Image size.')
-  
+  # 2022/08/14
+  flags.DEFINE_float('dropout_rate',  0.3, 'Dropout rate.')
+
   flags.DEFINE_string('strategy', 'gpu', 'Strategy: tpu, gpus, gpu.')
   flags.DEFINE_integer('num_classes', 10, 'Number of classes.')
   flags.DEFINE_string('best_model_name', 'best_model.5h', 'Best model name.')
@@ -142,13 +144,16 @@ class EfficientNetV2Inferencer:
       #print(" {}".format(image_files))
       print("--- eval_image_size {}".format(FLAGS.eval_image_size))
       print("\n--- image_path {}".format(FLAGS.image_path))
-      for image_file in image_files:
+      image_size  = FLAGS.eval_image_size
 
-        image = tf.io.read_file(image_file)
-        image = preprocessing.preprocess_image(
-          image, 
-          image_size  = FLAGS.eval_image_size, 
-          is_training = False)
+      for image_file in image_files:
+        image = tf.keras.preprocessing.image.load_img(image_file, target_size=(image_size, image_size),
+            color_mode = 'rgb',
+            interpolation='nearest')
+
+        image = tf.keras.preprocessing.image.img_to_array(image)
+        image = (image)* 1.0/255.0
+
         # A tensor with a length 1 axis inserted at index axis.
         image  = tf.expand_dims(image, 0)
         logits = self.model(image, training=False)

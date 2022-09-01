@@ -82,6 +82,7 @@ def define_flags():
   flags.DEFINE_string('evaluation_dir',  "./evaluation", 'Directoroy to save test results.')
   flags.DEFINE_bool('channels_first', False, 'Channel first flag.')
   flags.DEFINE_string('ckpt_dir', "", 'Pretrained checkpoint dir.')
+  flags.DEFINE_float('dropout_rate',  0.3, 'Dropout rate.')
 
 
 class EfficientNetV2Evaluator:

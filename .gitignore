@@ -121,8 +121,8 @@ venv.bak/
 /site
 
 #
-efficientnetv2-m/
-projects/MonkeyPox/models
+#efficientnetv2-b0/
+#projects/MonkeyPox/models
 
 # mypy
 .mypy_cache/
