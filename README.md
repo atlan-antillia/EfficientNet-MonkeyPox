@@ -239,7 +239,7 @@ Training console output:<br>
 
 <br>
 <img src="./asset/MonkeyPox_train_console_output_at_epoch_27_0902.png" width="840" height="auto"><br>
-<br>
+
 As shown above, please note that the <b>best_model.h5</b> has been saved at epoch 17.
 <br>
 <br>
