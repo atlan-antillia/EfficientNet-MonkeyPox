@@ -92,6 +92,9 @@ Sample images in MonkeyPox-Images/Training/MonKey_Pox:<br>
 <img src="./asset/MonkeyPox_Training_Monkey_Pox.png"  width="820" height="auto"><br>
 
 <br>
+The number of images in Training and Testing of MonkeyPox-Images:<br>
+<img src="./projects/MonkeyPox/_MonkeyPox-Images_.png"><br>
+<br>
 <h3>
 <a id="1.2">1.2 Install Python packages</a>
 </h3>
